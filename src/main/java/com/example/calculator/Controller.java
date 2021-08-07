@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RestController
 public class Controller {
@@ -13,23 +15,22 @@ public class Controller {
     @GetMapping("/api/calculation")
 
     public CalculatorBean calculator(@RequestParam int max, @RequestParam int divisor, @RequestParam int limit){
+
         var calculatorBean = new CalculatorBean();
 
-        List<String> list = new ArrayList<>();
+        var range = IntStream
+                .rangeClosed(0, max)
+                .boxed()
+                .collect(Collectors.toList());
 
-        while (list.size() < limit){
-            if(max%divisor == 0)
-                list.add("I am " + (max + 2));
-            max--;
-        }
+        var list = range.stream()
+                .filter(subList -> subList%divisor == 0)
+                .sorted(Comparator.reverseOrder())
+                .limit(3)
+                .map(l -> "I am " + (l+2))
+                .collect(Collectors.toList());
+
         calculatorBean.setData(list);
-
-//        for(int i = max; i > 0; i--){
-//            if(i%divisor ==0) {
-//                list.add(i + 2);
-//                if(list.size() == limit) break;
-//            }
-//        }
 
         return calculatorBean;
     }
